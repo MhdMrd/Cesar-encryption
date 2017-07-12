@@ -54,7 +54,7 @@ int encrypt(char * string, int n, int size){
 		i++;
 	}
 	FILE * stream = NULL;
-	stream = fopen("encrypted.txt", "w+");
+	stream = fopen("encrypted.enc", "w+");
 	if (stream == NULL)
 	{
 		printf("Opening failed.\n");
@@ -70,7 +70,7 @@ int encrypt(char * string, int n, int size){
 
 		fwrite(string, sizeof(*string), size, stream);
 		
-			printf("Text encrypted into file 'encrypted.txt'.\n");
+			printf("Text encrypted into file 'encrypted.enc'.\n");
 		
 		return 1;
 	}
@@ -83,7 +83,7 @@ int decrypt(char const * filename, int key, int size){
 	char c = ' ';
 	int end = 0;
 	char * str = (char*)malloc(sizeof(char)*MAX);
-	int r = readFile("encrypted.txt", str, &size, "r+");
+	int r = readFile("encrypted.enc", str, &size, "r+");
 	*(str + size) = '\0';
 	FILE * stream = NULL;
 	stream = fopen("decrypted.txt", "w+");
