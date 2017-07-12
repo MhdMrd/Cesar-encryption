@@ -3,37 +3,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#include "chars.h"
+
 #define MAX 10000
 #define ACTION_ENCRYPT "-e"
 #define ACTION_DECRYPT "-d"
 
-int readFile(char const * file, char * res, int* n, char * mode);
-int encrypt(char * string, int key, int size);
-int decrypt(char * filename, int key, int size);
-void operations(char * action, int argc, char const *argv[]);
-
-
-int main(int argc, char const *argv[])
-{
-	printf("Ok\n");
-	if (argc<2)
-	{
-		printf("You must provided at least 2 arguments to run this code.\n");
-		return 0;
-	}else{
-		printf("Ik\n");
-		if (strcmp(argv[1],ACTION_ENCRYPT)==0)
-		{
-			printf("Aok\n");
-			operations("encrypt", argc, argv);
-		}
-		if(strcmp(argv[1],ACTION_DECRYPT)==0){
-			operations("decrypt", argc, argv);
-		}
-	}
-}
-
-
+//Function to read file
 int readFile(char const * file, char * res, int* n, char * mode){
 	int i=0;
 	char c = ' ';
@@ -46,14 +22,13 @@ int readFile(char const * file, char * res, int* n, char * mode){
 		printf("Opening failed.\n");
 		return 0;
 	}else{
+		printf("Opening...\n");
 		i=0;
 		while (c!=EOF)
 		{
 			if(c==EOF) break;
 			c = fgetc(stream);
 			i++;
-			printf("c bn\n");
-			//fread(&c, sizeof(char), 1, stream);
 			if(i<=MAX){
 				res[i-1]=(char)c;
 			}
@@ -65,6 +40,7 @@ int readFile(char const * file, char * res, int* n, char * mode){
 	return 1;	
 }
 
+//Function to encrypt the text
 int encrypt(char * string, int n, int size){
 	int i=0;
 	char c = ' ';
@@ -89,51 +65,51 @@ int encrypt(char * string, int n, int size){
 		
 		while(c!='\0' && i<size){
 			*(string + i) = shiftRight(*(string + i), n);
-			//fwrite(&s,sizeof(char), 1, stream);
 			i++;
-			
 		}
+
 		fwrite(string, sizeof(*string), size, stream);
 		
 			printf("Text encrypted into file 'encrypted.txt'.\n");
-			printf("n:%d\n",size);	
 		
 		return 1;
 	}
 	fclose(stream);
 }
 
-int decrypt(char * filename, int key, int size){
-	int i=0, n=0, end =0;
+//Function to decrypt the file
+int decrypt(char const * filename, int key, int size){
+	int i=0;
 	char c = ' ';
-	char s = ' ';
-	char * res = (char *)malloc(sizeof(char)*size);
-	int res_int = readFile(filename, res, &n, "r+");
+	int end = 0;
+	char * str = (char*)malloc(sizeof(char)*MAX);
+	int r = readFile("encrypted.txt", str, &size, "r+");
+	*(str + size) = '\0';
 	FILE * stream = NULL;
-	stream = fopen("decyrypted.txt", "w+");
+	stream = fopen("decrypted.txt", "w+");
 	if (stream == NULL)
 	{
 		printf("Opening failed.\n");
 		return 0;
 	}else{
+		printf("Opening...\n");
 		c= ' ';
 		i=0;
-		printf("Ok\n");
-		while(c!='\0' && i<n){
-			c = *(res + i);
-			*(res + i) = shiftLeft(c, key);
-			//fwrite(&s, sizeof(char),1, stream);
+		while(c!='\0' && i<size){
+			c = *(str + i);
+			*(str + i) = shiftLeft(c, key);
+			c=*(str + i);
 			i++;
-			
 		}
-			fwrite(res, sizeof(*res), n, stream);
-			printf("Text decrypted into file 'decrypted.txt'.\n");	
-			printf("n:%d\n",n );
+		fwrite(str, sizeof(*str), size, stream);
+		
+		printf("Text decrypted into file 'decrypted.txt'.\n");		
 		return 1;
 	}
-	fclose(stream);	
+	fclose(stream);
 }
 
+//The operations carried out in the main according to the type of action desired: encryption or decryption
 void operations(char * action, int argc, char const *argv[]){
 	int e = 0, d=0;
 	if(argc<3)
@@ -143,12 +119,9 @@ void operations(char * action, int argc, char const *argv[]){
 				if (argc==4)
 				{
 					int i=0, nberCharacters = 0, n=0;
-					printf("OKKK\n");
 					char* res = (char*)malloc(sizeof(char)*MAX);
 					char* key = (char*)malloc(sizeof(int));	
-					printf("Avant\n");
 					int file = readFile(argv[2], res, &nberCharacters, "r+");
-					printf("Nombre de caracteres lus:%d\n",nberCharacters );
 					int key_res = readFile(argv[3], key, &n, "r+");
 					int key_i = atoi(key);
 					if(strcmp(action, "encrypt")==0){
